@@ -6,14 +6,17 @@
 //
 
 import SwiftUI
+import TipKit
 
 struct ContentView: View {
   @State private var animals: [Animal] = []
   @State private var isAddingAnimal = false
+  private let addAnimalTip = AddAnimalTip()
   
     var body: some View {
       NavigationStack {
         List {
+          TipView(addAnimalTip)
           ForEach(animals) { animal in
             VStack(alignment: .leading) {
               Text(animal.name)
