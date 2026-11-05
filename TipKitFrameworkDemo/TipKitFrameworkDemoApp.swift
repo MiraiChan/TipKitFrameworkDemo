@@ -6,9 +6,15 @@
 //
 
 import SwiftUI
+import TipKit
 
 @main
 struct TipKitFrameworkDemoApp: App {
+  init() {
+    try? Tips.configure([
+      .displayFrequency(.immediate)
+    ])
+  }
     var body: some Scene {
         WindowGroup {
             ContentView()

@@ -25,6 +25,9 @@ struct ContentView: View {
                 .foregroundStyle(.secondary)
             }
           }
+          .onDelete { offsets in
+            animals.remove(atOffsets: offsets)
+          }
         }
         .navigationTitle("Pets")
         .toolbar {
@@ -35,6 +38,7 @@ struct ContentView: View {
         .sheet(isPresented: $isAddingAnimal) {
           AddAnimalView { animal in
             animals.append(animal)
+            AddAnimalTip.invalidate(reason: .actionPerformed)
           }
         }
       }
