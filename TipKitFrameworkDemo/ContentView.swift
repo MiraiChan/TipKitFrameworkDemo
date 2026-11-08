@@ -12,11 +12,13 @@ struct ContentView: View {
   @State private var animals: [Animal] = []
   @State private var isAddingAnimal = false
   private let addAnimalTip = AddAnimalTip()
+  private let deleteTip = DeleteTip()
   
     var body: some View {
       NavigationStack {
         List {
           TipView(addAnimalTip)
+          TipView(deleteTip)
           ForEach(animals) { animal in
             VStack(alignment: .leading) {
               Text(animal.name)
@@ -27,6 +29,7 @@ struct ContentView: View {
           }
           .onDelete { offsets in
             animals.remove(atOffsets: offsets)
+            deleteTip.invalidate(reason: .actionPerformed)
           }
         }
         .navigationTitle("Pets")
@@ -38,8 +41,11 @@ struct ContentView: View {
         .sheet(isPresented: $isAddingAnimal) {
           AddAnimalView { animal in
             animals.append(animal)
-            AddAnimalTip.invalidate(reason: .actionPerformed)
+            addAnimalTip.invalidate(reason: .actionPerformed)
           }
+        }
+        .onChange(of: animals.isEmpty) {
+          DeleteTip.hasAnimal = !animals.isEmpty
         }
       }
     }
