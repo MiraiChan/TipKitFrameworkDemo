@@ -37,3 +37,23 @@ struct DeleteTip: Tip {
     #Rule(Self.$hasAnimal) { $0 == true }
   }
 }
+
+struct LitterTip: Tip {
+  static let animalAdded = Event(id: "animalAdded")
+  
+  var title: Text {
+    Text("Not every animal's toilet needs to be changed once a week")
+  }
+  
+  var message: Text? {
+    Text("Set how many days this one can go between changing the toilet litter.")
+  }
+  
+  var image: Image? {
+    Image(systemName: "toilet")
+  }
+  
+  var rules: [Rule] {
+    #Rule(Self.animalAdded) { $0.donations.count >= 1 }
+  }
+}
