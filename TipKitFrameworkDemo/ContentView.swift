@@ -32,6 +32,11 @@ struct ContentView: View {
             deleteTip.invalidate(reason: .actionPerformed)
           }
         }
+        .overlay {
+          if animals.isEmpty {
+            ContentUnavailableView("No animals yet", systemImage: "pawprint.fill")
+          }
+        }
         .navigationTitle("Pets")
         .toolbar {
           Button("Add animal", systemImage: "plus") {
