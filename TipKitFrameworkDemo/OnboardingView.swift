@@ -22,8 +22,26 @@ struct OnboardingView: View {
     VStack(spacing: 24) {
       TabView(selection: $page) {
         ForEach(pages.indices, id:\.self) { index in
-          VStack(spacing: 16) { }
+          VStack(spacing: 16) {
+            Image(systemName: pages[index].symbol)
+              .font(.system(size: 72))
+              .foregroundStyle(.green)
+              .accessibilityHidden(true)
+            Text(pages[index].title)
+              .font(.largeTitle.bold())
+              .multilineTextAlignment(.center)
+            Text(pages[index].detail)
+              .foregroundStyle(.secondary)
+              .multilineTextAlignment(.center)
+          }
+          .padding(32)
+          .tag(index)
         }
+      }
+      .tabViewStyle(.page(indexDisplayMode: .never))
+      
+      HStack(spacing: 8) {
+        
       }
     }
   }
