@@ -41,8 +41,15 @@ struct OnboardingView: View {
       .tabViewStyle(.page(indexDisplayMode: .never))
       
       HStack(spacing: 8) {
-        
+        ForEach(pages.indices, id: \.self) { index in
+          Capsule()
+            .fill(index == page ? Color.green : Color.secondary.opacity(0.4))
+            .frame(width: index == page ? 24 : 8, height: 8)
+        }
       }
+      .animation(.spring, value: page)
+      .accessibilityElement(children: .ignore)
+      .accessibilityLabel("Page \(page + 1) of \(pages.count)")
     }
   }
 }
