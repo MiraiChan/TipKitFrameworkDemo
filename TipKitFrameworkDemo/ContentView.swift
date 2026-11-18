@@ -35,7 +35,16 @@ struct ContentView: View {
         }
         .overlay {
           if animals.isEmpty {
-            ContentUnavailableView("No animals yet", systemImage: "pawprint.fill")
+            ContentUnavailableView {
+              Label("No animals yet", systemImage: "pawprint.fill")
+            } description: {
+              Text("Add the fresh litter. Litty will tell you when it is needed.")
+            } actions: {
+              Button("Add your first animal") {
+                isAddingAnimal = true
+              }
+              .buttonStyle(.borderedProminent)
+            }
           }
         }
         .navigationTitle("Pets")
@@ -48,6 +57,14 @@ struct ContentView: View {
           AddAnimalView { animal in
             animals.append(animal)
             addAnimalTip.invalidate(reason: .actionPerformed)
+          }
+        }
+        .fullScreenCover(isPresented: $showOnboarding) {
+          OnboardingView { animal in
+            if let animal {
+              animals.append(animal)
+            }
+            showOnboarding = false
           }
         }
         .onChange(of: animals.isEmpty) {
