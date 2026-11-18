@@ -50,6 +50,34 @@ struct OnboardingView: View {
       .animation(.spring, value: page)
       .accessibilityElement(children: .ignore)
       .accessibilityLabel("Page \(page + 1) of \(pages.count)")
+      
+      VStack(spacing: 12) {
+        if page < pages.count - 1 {
+          Button("Next") {
+            withAnimation { page += 1 }
+          }
+          .buttonStyle(.borderedProminent)
+        } else {
+          Button("Add your first animal") {
+            isAddingAnimal = true
+          }
+          .buttonStyle(.borderedProminent)
+        }
+        Button("Skip") {
+          onFinish(nil)
+        }
+      }
+      .controlSize(.large)
+      .padding(.bottom, 32)
+    }
+    .sheet(isPresented: $isAddingAnimal) {
+      AddAnimalView { animal in
+      onFinish(animal)
+      }
     }
   }
+}
+
+#Preview {
+  OnboardingView(onFinish: <#T##(Animal?) -> Void#>, page: <#T##arg#>, isAddingAnimal: <#T##arg#>)
 }

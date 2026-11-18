@@ -9,6 +9,7 @@ import SwiftUI
 import TipKit
 
 struct ContentView: View {
+  @AppStorage("showOnboarding") private var showOnboarding = true
   @State private var animals: [Animal] = []
   @State private var isAddingAnimal = false
   private let addAnimalTip = AddAnimalTip()
