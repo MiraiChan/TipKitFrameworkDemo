@@ -12,6 +12,7 @@ struct ContentView: View {
   @AppStorage("showOnboarding") private var showOnboarding = true
   @State private var animals: [Animal] = []
   @State private var isAddingAnimal = false
+  @State private var shouldAskForReminders = false 
   private let addAnimalTip = AddAnimalTip()
   private let deleteTip = DeleteTip()
   

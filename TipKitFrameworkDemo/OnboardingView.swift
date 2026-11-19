@@ -77,7 +77,3 @@ struct OnboardingView: View {
     }
   }
 }
-
-#Preview {
-  OnboardingView(onFinish: <#T##(Animal?) -> Void#>, page: <#T##arg#>, isAddingAnimal: <#T##arg#>)
-}
