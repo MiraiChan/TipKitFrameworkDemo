@@ -30,8 +30,13 @@ struct ContentView: View {
             }
           }
           .onDelete { offsets in
-            animals.remove(atOffsets: offsets)
-            deleteTip.invalidate(reason: .actionPerformed)
+              animals.remove(atOffsets: offsets)
+              deleteTip.invalidate(reason: .actionPerformed)
+          }
+          if shouldAskForReminders, let animal = animals.first {
+            ReminderPrimer(animal: animal) {
+              shouldAskForReminders = false
+            }
           }
         }
         .overlay {
@@ -67,6 +72,10 @@ struct ContentView: View {
             }
             showOnboarding = false
           }
+        }
+        .task(id: animals.count) {
+          guard !animals.isEmpty else { return }
+          shouldAskForReminders = await Reminders.status() == .notDetermined
         }
         .onChange(of: animals.isEmpty) {
           DeleteTip.hasAnimal = !animals.isEmpty
