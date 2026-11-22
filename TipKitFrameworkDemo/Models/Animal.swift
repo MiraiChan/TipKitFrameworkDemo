@@ -27,4 +27,12 @@ final class Animal {
       to: createdAt
     ) ?? createdAt
   }
+
+  func markLitterChanged(on date: Date = .now) {
+    nextChanging = Calendar.current.date(
+      byAdding: .day,
+      value: daysBnChangingTheLitter,
+      to: date
+    ) ?? date
+  }
 }

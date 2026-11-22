@@ -9,7 +9,8 @@ import SwiftUI
 
 struct ReminderPrimer: View {
   let animal: Animal
-  let onDone: () -> Void
+  let onEnable: () -> Void
+  let onDismiss: () -> Void
   
   var body: some View {
     VStack(alignment: .leading, spacing: 12) {
@@ -19,31 +20,16 @@ struct ReminderPrimer: View {
       )
       .font(.headline)
       
-      Text("One notification on \(animal.nextChanging, format: .dateTime.weekday(.wide)). Nothing else.")
+      Text("Get a notification when each animal's litter is due to be changed.")
         .foregroundStyle(.secondary)
       
       HStack {
         Button("Remind me") {
-          Task {
-            // Request permission to send notifications.
-            if await Reminders.requestPermission() {
-              // Schedule a reminder for the next litter change.
-              await Reminders.schedule(
-                "Time to change \(animal.name)'s litter",
-                on: animal.nextChanging
-              )
-              
-              // Log pending notifications for debugging.
-              await Reminders.logPending()
-            }
-            
-            // Complete the reminder prompt.
-            onDone()
-          }
+          onEnable()
         }
         .buttonStyle(.borderedProminent)
         
-        Button("Not now", action: onDone)
+        Button("Not now", action: onDismiss)
       }
     }
     .padding(.vertical, 8)
