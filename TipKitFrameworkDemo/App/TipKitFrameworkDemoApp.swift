@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SwiftData
 import TipKit
 
 @main
@@ -19,5 +20,6 @@ struct TipKitFrameworkDemoApp: App {
         WindowGroup {
             ContentView()
         }
+        .modelContainer(for: Animal.self)
     }
 }

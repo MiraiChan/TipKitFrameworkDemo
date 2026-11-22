@@ -7,10 +7,12 @@
 
 import SwiftUI
 import TipKit
+import SwiftData
 
 struct ContentView: View {
   @AppStorage("showOnboarding") private var showOnboarding = true
-  @State private var animals: [Animal] = []
+  @Environment(\.modelContext) private var modelContext
+  @Query(sort: \Animal.createdAt) private var animals: [Animal]
   @State private var isAddingAnimal = false
   @State private var shouldAskForReminders = false 
   private let addAnimalTip = AddAnimalTip()
@@ -30,7 +32,9 @@ struct ContentView: View {
             }
           }
           .onDelete { offsets in
-              animals.remove(atOffsets: offsets)
+              for index in offsets {
+                modelContext.delete(animals[index])
+              }
               deleteTip.invalidate(reason: .actionPerformed)
           }
           if shouldAskForReminders, let animal = animals.first {
@@ -61,14 +65,14 @@ struct ContentView: View {
         }
         .sheet(isPresented: $isAddingAnimal) {
           AddAnimalView { animal in
-            animals.append(animal)
+            modelContext.insert(animal)
             addAnimalTip.invalidate(reason: .actionPerformed)
           }
         }
         .fullScreenCover(isPresented: $showOnboarding) {
           OnboardingView { animal in
             if let animal {
-              animals.append(animal)
+              modelContext.insert(animal)
             }
             showOnboarding = false
           }
@@ -86,4 +90,5 @@ struct ContentView: View {
 
 #Preview {
     ContentView()
+      .modelContainer(for: Animal.self, inMemory: true)
 }
