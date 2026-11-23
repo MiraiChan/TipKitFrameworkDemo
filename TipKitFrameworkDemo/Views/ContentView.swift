@@ -8,16 +8,18 @@
 import SwiftUI
 import TipKit
 import SwiftData
+import UIKit
 
 struct ContentView: View {
   @AppStorage("showOnboarding") private var showOnboarding = true
   @Environment(\.modelContext) private var modelContext
   @Environment(\.scenePhase) private var scenePhase
+  @Environment(\.openURL) private var openURL
   @Query(sort: \Animal.createdAt) private var animals: [Animal]
   @State private var isAddingAnimal = false
   @State private var shouldAskForReminders = false 
   @State private var reminderRefresh = 0
-  @State private var reminderError: String?
+  @State private var reminderError: ReminderError?
   private let addAnimalTip = AddAnimalTip()
   private let deleteTip = DeleteTip()
   
@@ -52,11 +54,14 @@ struct ContentView: View {
             ReminderPrimer(animal: animal) {
               Task {
                 do {
-                  _ = try await Reminders.requestPermission()
+                  let granted = try await Reminders.requestPermission()
                   shouldAskForReminders = false
                   reminderRefresh += 1
+                  if !granted {
+                    reminderError = .permissionDenied
+                  }
                 } catch {
-                  reminderError = error.localizedDescription
+                  reminderError = .permissionRequest
                 }
               }
             } onDismiss: {
@@ -114,17 +119,36 @@ struct ContentView: View {
                 Reminders.cancel(id: id)
               }
             } catch {
-              if !Task.isCancelled { reminderError = error.localizedDescription }
+              if !Task.isCancelled { reminderError = .scheduling(animal.name) }
+              return
             }
           }
         }
-        .alert("Could not set reminder", isPresented: Binding(
-          get: { reminderError != nil },
-          set: { if !$0 { reminderError = nil } }
-        )) {
-          Button("OK", role: .cancel) { reminderError = nil }
-        } message: {
-          Text(reminderError ?? "")
+        .alert(item: $reminderError) { error in
+          switch error {
+          case .permissionDenied:
+            Alert(
+              title: Text("Notifications are off"),
+              message: Text("Allow notifications in Settings to receive litter reminders."),
+              primaryButton: .default(Text("Open Settings")) {
+                if let url = URL(string: UIApplication.openSettingsURLString) { openURL(url) }
+              },
+              secondaryButton: .cancel()
+            )
+          case .permissionRequest:
+            Alert(
+              title: Text("Could not request notification permission"),
+              message: Text("Please try again."),
+              dismissButton: .default(Text("OK"))
+            )
+          case .scheduling(let name):
+            Alert(
+              title: Text("Could not set reminder"),
+              message: Text("The reminder for \(name) could not be scheduled. Please try again."),
+              primaryButton: .default(Text("Retry")) { reminderRefresh += 1 },
+              secondaryButton: .cancel()
+            )
+          }
         }
         .onChange(of: animals.isEmpty) {
           DeleteTip.hasAnimal = !animals.isEmpty
@@ -141,6 +165,20 @@ struct ContentView: View {
     Reminders.cancel(id: animal.id)
     modelContext.delete(animal)
     deleteTip.invalidate(reason: .actionPerformed)
+  }
+}
+
+private enum ReminderError: Identifiable {
+  case permissionDenied
+  case permissionRequest
+  case scheduling(String)
+
+  var id: String {
+    switch self {
+    case .permissionDenied: "permissionDenied"
+    case .permissionRequest: "permissionRequest"
+    case .scheduling(let name): "scheduling-\(name)"
+    }
   }
 }
 
